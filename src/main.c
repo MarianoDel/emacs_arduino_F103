@@ -57,7 +57,7 @@ volatile unsigned short comms_timeout = 0;
 
 //--- Module Functions Declarations ----------
 void TimingDelay_Decrement(void);
-
+extern void EXTI0_IRQHandler (void);
 
 //--- Module Function Definitions ----------
 
@@ -114,6 +114,11 @@ int main (void)
     Wait_ms(100);
 #endif
 
+    TIM_1_Init();
+    TIM_3_Init();
+
+    UpdateTIMSync(DUTY_FOR_DMAX);
+    
     while (1)
     {
         LED_ON;
@@ -187,179 +192,11 @@ int main (void)
     //     Wait_ms(100);
     // }
     //---- Fin Prueba Usart3 envia caracter solo 'd' ----------
-#ifdef GATEWAY_TO_POWER_BOARDS
-    while (1)
-    {
-        if (power_have_data)
-        {
-            power_have_data = 0;
-            bytes_readed = ReadPowerBuffer(s_to_sendb, sizeof(s_to_sendb));
-
-            if ((bytes_readed + 1) < sizeof(s_to_sendb))
-            {
-                *(s_to_sendb + bytes_readed - 1) = '\n';
-                *(s_to_sendb + bytes_readed) = '\0';
-                RPI_Send(s_to_sendb);
-            }
-        }
-
-        if (rpi_have_data)
-        {
-            rpi_have_data = 0;
-            bytes_readed = ReadRPIBuffer(s_to_senda, sizeof(s_to_senda));
-
-            if ((bytes_readed + 1) < sizeof(s_to_senda))
-            {
-                *(s_to_senda + bytes_readed - 1) = '\n';
-                *(s_to_senda + bytes_readed) = '\0';
-                Power_Send(s_to_senda);
-            }
-
-            if (LED1)
-                LED1_OFF;
-            else
-                LED1_ON;
-        }
-    }
-
-#endif //GATEWAY_TO_POWER_BOARDS
-
-    //---- Programa Principal ----------
-#ifdef MAGNETO_NORMAL    
-    while (1)
-    {
-        switch (main_state)
-        {
-            case TREATMENT_STANDBY:
-
-                if (comms_messages & COMM_CONF_CHANGE)
-                {
-                    comms_messages &= ~COMM_CONF_CHANGE;
-                    if (TreatmentAssertParams() == resp_ok)    //si tengo todo lo envio
-                        PowerSendConf();                        
-                }
-
-                if (comms_messages & COMM_START_TREAT)
-                {
-                    //me piden por el puerto que arranque el tratamiento
-                    comms_messages &= ~COMM_START_TREAT;
-                    if (TreatmentAssertParams() == resp_error)
-                    {
-                        RPI_Send("ERROR\r\n");
-                    }
-                    else
-                    {
-                        RPI_Send("OK\r\n");
-                        PowerSendStart();
-                        main_state = TREATMENT_STARTING;                        
-                    }
-                }
-                break;
-
-            case TREATMENT_STARTING:
-                secs_end_treatment = TreatmentGetTime();
-                secs_in_treatment = 1;    //con 1 arranca el timer
-                secs_elapsed_up_to_now = 0;
-                PowerCommunicationStackReset();
-                main_state = TREATMENT_RUNNING;
-                break;
-
-            case TREATMENT_RUNNING:
-                PowerCommunicationStack();    //me comunico con las potencias para conocer el estado
-
-                if (comms_messages & COMM_PAUSE_TREAT)
-                {
-                    comms_messages &= ~COMM_PAUSE_TREAT;
-                    RPI_Send("OK\r\n");
-                    PowerSendStop();
-                    main_state = TREATMENT_PAUSED;
-                    secs_elapsed_up_to_now = secs_in_treatment;
-                }
-
-                if (comms_messages & COMM_STOP_TREAT)
-                {
-                    comms_messages &= ~COMM_STOP_TREAT;
-                    //termine el tratamiento
-                    RPI_Send("OK\r\n");
-                    PowerSendStop();
-                    main_state = TREATMENT_STOPPING;
-                }
-                
-                if (secs_in_treatment >= secs_end_treatment)
-                {
-                    //termine el tratamiento
-                    // comms_messages &= ~COMM_STOP_TREAT;                 
-                    PowerSendStop();
-                    main_state = TREATMENT_STOPPING;
-                }
-
-                if ((comms_messages & COMM_ERROR_OVERCURRENT) ||
-                    (comms_messages & COMM_ERROR_NO_CURRENT) ||
-                    (comms_messages & COMM_ERROR_SOFT_OVERCURRENT) ||
-                    (comms_messages & COMM_ERROR_OVERTEMP) ||
-                    (comms_messages & COMM_NO_COMM_CH1) ||
-                    (comms_messages & COMM_NO_COMM_CH2) ||
-                    (comms_messages & COMM_NO_COMM_CH3))                    
-                {
-                    PowerSendStop();
-                    LED1_ON;
-                    RaspBerry_Report_Errors(&comms_messages);
-                    LED1_OFF;
-                    main_state = TREATMENT_WITH_ERRORS;
-                    sprintf (buff, "treat err, msg: 0x%04x\r\n", comms_messages);
-                    RPI_Send(buff);
-                }
-                break;
-
-            case TREATMENT_PAUSED:
-
-                if (comms_messages & COMM_START_TREAT)
-                {
-                    comms_messages &= ~COMM_START_TREAT;
-                    secs_in_treatment = secs_elapsed_up_to_now;
-                    RPI_Send("OK\r\n");
-                    PowerSendStart();
-                    main_state = TREATMENT_RUNNING;
-                }
-
-                if (comms_messages & COMM_STOP_TREAT)
-                {
-                    //estaba en pausa y me mandaron stop
-                    comms_messages &= ~COMM_STOP_TREAT;
-                    RPI_Send("OK\r\n");
-                    PowerSendStop();
-                    main_state = TREATMENT_STOPPING;
-                }                
-                break;
-                
-            case TREATMENT_STOPPING:
-                sprintf (buff, "treat end, msg: 0x%04x\r\n", comms_messages);
-                RPI_Send(buff);
-                main_state = TREATMENT_STANDBY;
-                break;
-
-            case TREATMENT_WITH_ERRORS:
-
-                break;
-
-            default:
-                main_state = TREATMENT_STANDBY;
-                break;
-        }            
-
-        
-        //reviso comunicacion con raspberry
-        UpdateRaspberryMessages();
-
-        //reviso comunicacion con potencias
-        UpdatePowerMessages();
-    }
-#endif //MAGNETO_NORMAL
-    //---- Fin Programa Pricipal ----------
 }
+
 //--- End of Main ---//
 
-
+//--- Module Functions Definitions ----------------------
 void TimingDelay_Decrement(void)
 {
     if (wait_ms_var)
@@ -380,6 +217,42 @@ void TimingDelay_Decrement(void)
     // if (timer_led_pwm < 0xFFFF)
     //     timer_led_pwm ++;
     
+}
+
+void EXTI0_IRQHandler (void)
+{
+    if(EXTI->PR & 0x00000001)	//Line0
+    {
+        if (LED)
+            LED_OFF;
+        else
+            LED_ON;
+        
+        //reviso que mosfet generaba
+        // if (CTRL_M_A)
+        // {
+        //     DisablePreload_MosfetA();
+        //     UpdateTIM_MosfetA(0);
+        //     EnablePreload_MosfetA();
+        //     UpdateTIM_MosfetA(DUTY_FOR_DMAX);
+        // }
+        // else if (CTRL_M_B)
+        // {
+        //     DisablePreload_MosfetB();
+        //     UpdateTIM_MosfetB(0);
+        //     EnablePreload_MosfetB();
+        //     UpdateTIM_MosfetB(DUTY_FOR_DMAX);            
+        // }
+        // else
+        // {
+        //     //llegue muy tarde con la INT
+        // }
+
+        // current_excess = 1;
+
+
+        EXTI->PR |= 0x00000001;
+    }
 }
 
 //--- end of file ---//

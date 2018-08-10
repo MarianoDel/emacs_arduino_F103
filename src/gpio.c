@@ -61,7 +61,7 @@ void Tamper_Config(void)
 //	MODEx 11 Output 50MHz
 //
 //	Input Mode
-//      las funciones alternativas de los pines estan directamente conectadad al
+//      las funciones alternativas de los pines estan directamente conectadas al
 //      periferico en el modo input
 //      CNFx 00 Analog
 //      CNFx 01 Floating (reset)
@@ -97,24 +97,23 @@ void GpioInit (void)
         RCC_GPIOD_CLKEN;
 
     //--- GPIOA Low Side ------------------//
-    temp = GPIOA->CRL;    //PA2-PA3 Alternative (Usart2)
-    temp &= 0xFFFF00FF;
-    temp |= 0x00008A00;
+    temp = GPIOA->CRL;    //PA0 Input pull-up (Interrupt) PA2-PA3 Alternative (Usart2); PA6 Alternative (TIM3_CH1)
+    temp &= 0xF0FF00F0;
+    temp |= 0x0A008A08;    
     GPIOA->CRL = temp;
 
     //--- GPIOA High Side ------------------//
-    temp = GPIOA->CRH;    //PA9-PA10 Alternative (Usart1)
-    temp &= 0xFFFFF00F;
-    temp |= 0x000008A0;
+    temp = GPIOA->CRH;    //PA8 Alterantive (TIM1_CH1); PA9-PA10 Alternative (Usart1);
+    temp &= 0xFFFFF000;
+    temp |= 0x000008AA;
     GPIOA->CRH = temp;
 
     //--- GPIOA Pull-Up Pull-Dwn ------------------//
-    temp = GPIOA->ODR;    //PA3 pull-up
-    temp &= 0xFFF7;
-    temp |= 0x0008;
+    temp = GPIOA->ODR;    //PA0 pull-up PA3 pull-up
+    temp &= 0xFFF6;
+    temp |= 0x0009;
     GPIOA->ODR = temp;
     
-
     //--- GPIOB Low Side -------------------//
     temp = GPIOB->CRL;    //PB5 output
     temp &= 0xFF0FFFFF;
@@ -147,8 +146,26 @@ void GpioInit (void)
     temp |= 0x00000A00;
     GPIOD->CRL = temp;
 
-    
+#ifdef USE_EXTERNAL_INTS
+    //Interrupt en PA4 y PA5
+    if (!RCC_AFIO_CLK)
+        RCC_AFIO_CLKEN;
 
+    //Select Port A & Pin0 for external interrupt
+    temp = AFIO->EXTICR[0];
+    temp &= ~AFIO_EXTICR1_EXTI0;
+    temp |= AFIO_EXTICR1_EXTI0_PA;
+    AFIO->EXTICR[0] = (unsigned short) temp;
+    
+    // EXTI->IMR |= 0x00000001; 			//Corresponding mask bit for interrupts EXTI0
+    EXTI->EMR |= 0x00000000; 			//Corresponding mask bit for events
+    EXTI->RTSR |= 0x00000001; 			//Interrupt line on rising edge
+    EXTI->FTSR |= 0x00000000; 			//Interrupt line on falling edge
+
+    NVIC_EnableIRQ(EXTI0_IRQn);
+    NVIC_SetPriority(EXTI0_IRQn, 2);
+
+#endif
 }
 
 //--- end of file ---//

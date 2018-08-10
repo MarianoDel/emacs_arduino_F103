@@ -33,6 +33,150 @@ void Wait_ms (unsigned short a)
     while (wait_ms_var);
 }
 
+inline void UpdateTIMSync (unsigned short a)
+{
+    //primero cargo TIM1
+    TIM1->CCR1 = a;
+    TIM3->ARR = DUTY_50_PERCENT + a;    //TIM3->CCR1 es el delay entre timers
+                                        //lo cargo en el timer init
+}
+
+inline void UpdateTIM_MosfetA (unsigned short a)
+{
+    TIM3->ARR = DUTY_50_PERCENT + a;    
+}
+
+inline void UpdateTIM_MosfetB (unsigned short a)
+{
+    TIM1->CCR1 = a;
+}
+
+inline void EnablePreload_MosfetA (void)
+{
+    // TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
+    TIM3->CR1 |= TIM_CR1_ARPE;
+}
+
+inline void DisablePreload_MosfetA (void)
+{
+    // TIM3->CCMR1 &= ~TIM_CCMR1_OC1PE;
+    TIM3->CR1 &= ~TIM_CR1_ARPE;    
+}
+
+inline void EnablePreload_MosfetB (void)
+{
+    TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
+}
+
+inline void DisablePreload_MosfetB (void)
+{
+    TIM1->CCMR1 &= ~TIM_CCMR1_OC1PE;
+}
+
+void Update_TIM1_CH1 (unsigned short a)
+{
+    TIM1->CCR1 = a;
+}
+
+void Update_TIM3_CH1 (unsigned short a)
+{
+    TIM3->CCR1 = a;
+}
+
+void Update_TIM3_CH2 (unsigned short a)
+{
+    TIM3->CCR2 = a;
+}
+
+void Update_TIM3_CH3 (unsigned short a)
+{
+    TIM3->CCR3 = a;
+}
+
+void Update_TIM3_CH4 (unsigned short a)
+{
+    TIM3->CCR4 = a;
+}
+
+//-------------------------------------------//
+// @brief  TIM configure.
+// @param  None
+// @retval None
+//------------------------------------------//
+void TIM_1_Init (void)
+{
+    if (!RCC_TIM1_CLK)
+        RCC_TIM1_CLKEN;
+
+    //Configuracion del timer.
+    //TIM1->CR1 |= TIM_CR1_OPM;        //clk int / 1; upcounting; one pulse
+    TIM1->CR1 = 0x00;        //clk int / 1;
+    TIM1->CR2 |= TIM_CR2_MMS_1;        //UEV -> TRG0
+    //TIM1->CR2 = 0x00;
+    //TIM1->SMCR |= TIM_SMCR_MSM | TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_TS_1;    //link timer3
+    TIM1->SMCR = 0x0000;
+
+#ifdef TIM1_AND_TIM3
+    TIM1->CCMR1 = 0x0060;            //CH1 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)    
+    TIM1->CCMR2 = 0x0060;            //CH3 output PWM mode 1
+    TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC3E | TIM_CCER_CC3P;
+#endif
+        
+    TIM1->BDTR |= TIM_BDTR_MOE;
+    TIM1->ARR = DUTY_100_PERCENT;    //cada tick 20.83ns
+
+    TIM1->CNT = 0;
+    TIM1->PSC = 0;
+
+    // Enable timer ver UDIS
+    //TIM1->DIER |= TIM_DIER_UIE;
+    TIM1->CR1 |= TIM_CR1_CEN;
+
+    TIM1->CCR1 = 0;
+}
+
+void TIM_3_Init (void)
+{
+    if (!RCC_TIM3_CLK)
+        RCC_TIM3_CLKEN;
+
+    //Configuracion del timer.
+    TIM3->CR1 |= TIM_CR1_OPM;        //clk int / 1; upcounting; one pulse
+    //TIM3->CR1 = 0x0000;        //clk int / 1; upcounting;
+    //TIM3->CR2 |= TIM_CR2_MMS_1;        //UEV -> TRG0
+    TIM3->CR2 = 0x0000;
+    //TIM3->SMCR |= TIM_SMCR_SMS_2 |TIM_SMCR_SMS_1 | TIM_SMCR_TS_1 | TIM_SMCR_TS_0;    //reset mode
+    //TIM3->SMCR |= TIM_SMCR_SMS_2;    //reset mode link timer1    OJO no anda
+    TIM3->SMCR |= TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1;    //trigger mode link timer1
+    //TIM3->SMCR = 0x0000;    //
+    //TIM3->CCMR1 = 0x6000;            //CH2 output PWM mode 1
+    //  TIM3->CCMR1 = 0x0060;            //CH1 output PWM mode 1
+    TIM3->CCMR1 = 0x0070;            //CH1 output PWM mode 2 (channel inactive TIM3->CNT < TIM3->CCR1)
+    TIM3->CCMR2 = 0x0000;            //
+    //  TIM3->CCER |= TIM_CCER_CC1E | TIM_CCER_CC1P;    //CH1 enable on pin active high
+    TIM3->CCER |= TIM_CCER_CC1E;    //CH1 enable on pin active high
+    //TIM3->CCER |= TIM_CCER_CC2E | TIM_CCER_CC2P;    //CH2 enable on pin active high
+    TIM3->ARR = DUTY_50_PERCENT;
+    TIM3->CNT = 0;
+    TIM3->PSC = 0;
+    //TIM3->EGR = TIM_EGR_UG;    //generate event
+
+    // Enable timer ver UDIS
+    //TIM3->DIER |= TIM_DIER_UIE;
+    TIM3->CR1 |= TIM_CR1_CEN;
+
+    //TIM3->CCR2 = 512;        //delay = TIM3->CCRx = 512 - TIM1->CCR2
+    TIM3->CCR1 = (DUTY_50_PERCENT + 1);        //delay = TIM3->CCRx = 512 - TIM1->CCR2
+}
+
+void TIM3_IRQHandler (void)	//1 ms
+{
+    //Code Handler
+    
+    //bajar flag
+    if (TIM3->SR & 0x01)	//bajo el flag
+        TIM3->SR = 0x00;
+}
 
 #ifdef STM32F10X_HD
 void TIM7_IRQHandler (void)	//1mS
@@ -69,8 +213,8 @@ void TIM7_Init(void)
 //    Quiero una interrupcion por ms CK_INT es 72MHz
 
     //---- Clk ----//
-    if (!(RCC->APB1ENR & 0x00000020))
-        RCC->APB1ENR |= 0x00000020;
+    if (!RCC_TIM7_CLK)
+        RCC_TIM7_CLK_ON;
 
     //--- Config ----//
     TIM7->ARR = 1000;

@@ -24,8 +24,8 @@
 #define SOFTWARE_VERSION_1_0        //habla contra rpi con programa magneto y traduce a micros potencia
 
 //-------- Type of Program (depending on software version) ----------------
-#define HARDWARE_TESTS
-
+// #define HARDWARE_TESTS
+#define TIM1_AND_TIM3
 
 
 //-------- Type of Program and Features ----------------
@@ -68,20 +68,8 @@
 #ifdef HARDWARE_TESTS
 #define FEATURES "Programa de Testeo\n LED\n Usart1\n"
 #endif
-#ifdef TEST_ADC_AND_DMA
-#define FEATURES "Programa de Testeo ADC -> DMA\n"
-#endif
-#ifdef TEST_FIXED_D
-#define FEATURES "Programa de ciclo d fijo\n"
-#endif
-#ifdef TEST_FIXED_VOUT
-#define FEATURES "Programa Vout fijo\n"
-#endif
-#ifdef ONLY_COMMS
-#define FEATURES "Only Communications for Ver 1.0\n"
-#endif
-#ifdef CURRENT_MODE_VER_1_0
-#define FEATURES "Current Mode for Hwd ver 1.0\n"
+#ifdef TIM1_AND_TIM3
+#define FEATURES "Tim1 linked to Tim3\n"
 #endif
 
 //--- End of Hardware & Software Messages ------------------//
@@ -256,25 +244,6 @@ enum bool
 
 //--- RCC clkEnable ---//
 
-#define RCC_TIM1_CLK (RCC->APB2ENR & 0x00000800)
-#define RCC_TIM1_CLKEN RCC->APB2ENR |= 0x00000800
-#define RCC_TIM1_CLKDIS RCC->APB2ENR &= ~0x00000800
-
-#define RCC_TIM2_CLK (RCC->APB1ENR & 0x00000001)
-#define RCC_TIM2_CLKEN RCC->APB1ENR |= 0x00000001
-#define RCC_TIM2_CLKDIS RCC->APB1ENR &= ~0x00000001
-
-#define RCC_TIM3_CLK (RCC->APB1ENR & 0x00000002)
-#define RCC_TIM3_CLKEN RCC->APB1ENR |= 0x00000002
-#define RCC_TIM3_CLKDIS RCC->APB1ENR &= ~0x00000002
-
-#define RCC_TIM4_CLK (RCC->APB1ENR & 0x00000004)
-#define RCC_TIM4_CLKEN RCC->APB1ENR |= 0x00000004
-#define RCC_TIM4_CLKDIS RCC->APB1ENR &= ~0x00000004
-
-#define RCC_TIM5_CLK (RCC->APB1ENR & 0x00000008)
-#define RCC_TIM5_CLKEN RCC->APB1ENR |= 0x00000008
-#define RCC_TIM5_CLKDIS RCC->APB1ENR &= ~0x00000008
 
 
 #define RCC_ADC1_CLK (RCC->APB2ENR & 0x00000200)

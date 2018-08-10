@@ -11,6 +11,11 @@
 #ifndef __GPIO_H_
 #define __GPIO_H_
 
+//-- Configurations
+#define USE_EXTERNAL_INTS
+
+//-- Exported Macros --------------------
+
 //--- RCC clkEnable ---//
 #define RCC_GPIOA_CLK (RCC->APB2ENR & 0x00000004)
 #define RCC_GPIOA_CLKEN RCC->APB2ENR |= 0x00000004
@@ -31,6 +36,10 @@
 #define RCC_AFIO_CLK (RCC->APB2ENR & 0x00000001)
 #define RCC_AFIO_CLKEN RCC->APB2ENR |= 0x00000001
 #define RCC_AFIO_CLKDIS RCC->APB2ENR &= ~0x00000001
+
+#define RCC_AFIO_CLK       (RCC->APB2ENR & 0x00000001)
+#define RCC_AFIO_CLKEN     RCC->APB2ENR |= 0x00000001
+#define RCC_AFIO_CLKDIS    RCC->APB2ENR &= ~0x00000001
 
 // #define RCC_GPIOA_clk (RCC->APB2ENR & 0x00000004)
 // #define RCC_GPIOA_clkEnable RCC->APB2ENR |= 0x00000004
