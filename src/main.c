@@ -1,5 +1,5 @@
-//---------------------------------------------------------
-// #### PROYECTO STRETCHER MAGNETO F103 - Custom Board ####
+//----------------------------------------------------------------------
+// #### PROYECTO PARA PLACA ARDUINO STM32 - Arduino Blue Pill Board ####
 // ##
 // ## @Author: Med
 // ## @Editor: Emacs - ggtags
@@ -13,12 +13,8 @@
 #include "stm32f10x.h"
 #include "hard.h"
 
-#include "treatment.h"
 #include "timer.h"
 #include "gpio.h"
-#include "comms_from_rasp.h"
-#include "comms_from_power.h"
-#include "comms.h"
 #include "usart.h"
 
 #include <stdio.h>
@@ -30,8 +26,10 @@
 volatile unsigned char usart1_have_data;
 volatile unsigned char usart2_have_data;
 volatile unsigned char usart3_have_data;
+#ifdef STM32F10X_HD
 volatile unsigned char usart4_have_data;
 volatile unsigned char usart5_have_data;
+#endif
 
 unsigned short comms_messages = 0;
 char buffSendErr[64];
@@ -54,39 +52,9 @@ unsigned short buzzer_timeout = 0;
 volatile unsigned short wait_ms_var = 0;
 volatile unsigned short comms_timeout = 0;
 
-// //Estructuras.
-// session_typedef session_slot_aux;
-
-// session_typedef session_ch_1;
-// session_typedef session_ch_2;
-// session_typedef session_ch_3;
-// session_typedef session_ch_4;
-
-unsigned char temp_actual_channel_1_int = 0;
-unsigned char temp_actual_channel_1_dec = 0;
-unsigned char temp_actual_channel_2_int = 0;
-unsigned char temp_actual_channel_2_dec = 0;
-unsigned char temp_actual_channel_3_int = 0;
-unsigned char temp_actual_channel_3_dec = 0;
-unsigned char temp_actual_channel_4_int = 0;
-unsigned char temp_actual_channel_4_dec = 0;
-
-//session_typedef session_slot_1;
-//session_typedef session_slot_2;
-//session_typedef session_slot_3;
-//session_typedef session_slot_4;
-//session_typedef session_slot_5;
-
-unsigned char channel_1_pause = 0;
-unsigned char channel_2_pause = 0;
-unsigned char channel_3_pause = 0;
-unsigned char channel_4_pause = 0;
 
 /* Globals ------------------------------------------------------------------*/
-volatile unsigned short secs_in_treatment = 0;
-volatile unsigned short millis = 0;
-unsigned short secs_end_treatment;
-unsigned short secs_elapsed_up_to_now;
+
 
 //--- FUNCIONES DEL MODULO ---//
 void TimingDelay_Decrement(void);
@@ -135,8 +103,10 @@ int main (void)
 // 	//Configuracion led. & Enabled Channels
     GpioInit();
 
+#ifdef STM32F10X_HD    
     //enciendo TIM7
     TIM7_Init();
+#endif
 
     //enciendo usart1 para raspberry
     Usart1Config();
@@ -412,17 +382,6 @@ void TimingDelay_Decrement(void)
 
     if (comms_timeout)
         comms_timeout--;
-    
-    if (secs_in_treatment)
-    {
-        if (millis < 1000)
-            millis++;
-        else
-        {
-            secs_in_treatment++;
-            millis = 0;
-        }
-    }
     
     // if (timer_standby)
     //     timer_standby--;

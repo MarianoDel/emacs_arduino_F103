@@ -20,6 +20,10 @@ Antes de empezar revisar seleccion del micro y configuracion
 * end of ram; stack size; memory lenght
 >./startup_src/stm32_flash.ld
 
-* linea 66 elegir micro
+* elegir clock (xtal o rc)
+>./src/hard.h
+
+* elegir procesador definiciones en linea 66 de stm32f1xx.h -> pero modificar en Makefile
 >./src/stm32f1xx.h
+>.Makefile
 

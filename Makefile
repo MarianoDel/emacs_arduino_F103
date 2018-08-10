@@ -28,7 +28,11 @@ MCU  = cortex-m3
 
 # List all default C defines here, like -D_DEBUG=1
 #DDEFS = -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER -DUSE_STM3210E_EVAL
-DDEFS = -DSTM32F10X_HD
+#para el micro STM32F103RC
+# DDEFS = -DSTM32F10X_HD
+#para el micro STM32F103C8
+DDEFS = -DSTM32F10X_MD
+
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
 
@@ -54,7 +58,7 @@ DLIBS =
 
 #
 # Define project name and Ram = 0/Flash = 1 mode here
-PROJECT        = Magneto_GTK
+PROJECT        = bluepill
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS =
@@ -67,17 +71,12 @@ UADEFS =
 SRC  = ./src/main.c
 SRC += ./src/gpio.c
 SRC += ./src/it.c
-# SRC += ./src/GTK_Hard.c
-# SRC += ./src/GTK_Signal.c
-# #SRC += ./src/pantallas.c
 SRC += ./src/usart.c
 SRC += ./src/timer.c
 # SRC += ./src/pwm.c
 # SRC += ./src/flash_program.c
 # SRC += ./src/adc.c
-SRC += ./src/comms_from_rasp.c
-SRC += ./src/comms_from_power.c
-SRC += ./src/treatment.c
+
 
 ## Core Support
 SRC += ./startup_src/syscalls.c

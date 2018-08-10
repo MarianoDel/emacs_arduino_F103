@@ -23,7 +23,18 @@ extern volatile unsigned short wait_ms_var;
 
 
 /* Module Functions -----------------------------------------------------------*/
+void Wait_ms (unsigned short a)
+{
+    if (a > 1)
+        wait_ms_var = a - 1;
+    else
+        wait_ms_var = a;
 
+    while (wait_ms_var);
+}
+
+
+#ifdef STM32F10X_HD
 void TIM7_IRQHandler (void)	//1mS
 {
     if (TIM7->SR & 0x01)
@@ -110,14 +121,6 @@ void TIM7_Init(void)
 // 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 // 	NVIC_Init(&NVIC_InitStructure);
 // }
+#endif
 
-void Wait_ms (unsigned short a)
-{
-    if (a > 1)
-        wait_ms_var = a - 1;
-    else
-        wait_ms_var = a;
-
-    while (wait_ms_var);
-}
-
+//--- end of file ---//

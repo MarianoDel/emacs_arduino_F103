@@ -26,7 +26,7 @@
 
 //-------- Type of Program (depending on software version) ----------------
 // #define MAGNETO_NORMAL
-#define GATEWAY_TO_POWER_BOARDS
+// #define GATEWAY_TO_POWER_BOARDS
 
 
 

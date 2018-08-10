@@ -21,8 +21,10 @@
 extern volatile unsigned char usart1_have_data;
 extern volatile unsigned char usart2_have_data;
 extern volatile unsigned char usart3_have_data;
+#ifdef STM32F10X_HD
 extern volatile unsigned char usart4_have_data;
 extern volatile unsigned char usart5_have_data;
+#endif
 
 
 /* Globals ------------------------------------------------------------------*/
@@ -48,6 +50,7 @@ volatile unsigned char * prx3;
 volatile unsigned char tx3buff[SIZEOF_TXDATA];
 volatile unsigned char rx3buff[SIZEOF_RXDATA];
 
+#ifdef STM32F10X_HD
 //--- UART4 ---//
 volatile unsigned char * ptx4;
 volatile unsigned char * ptx4_pckt_index;
@@ -61,7 +64,7 @@ volatile unsigned char * ptx5_pckt_index;
 volatile unsigned char * prx5;
 volatile unsigned char tx5buff[SIZEOF_TXDATA];
 volatile unsigned char rx5buff[SIZEOF_RXDATA];
-
+#endif
 
 volatile unsigned short dummy = 0;
 
@@ -463,6 +466,7 @@ void USART3_IRQHandler (void)
     }
 }
 
+#ifdef STM32F10X_HD
 //---- UART4 Functions ----
 void Uart4Config(void)
 {
@@ -724,5 +728,6 @@ void UART5_IRQHandler (void)
         dummy = UART5->DR;
     }
 }
+#endif    //STM32F10X_HD
 
 //---- End of File ----//
