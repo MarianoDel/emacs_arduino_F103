@@ -55,40 +55,26 @@ volatile unsigned short comms_timeout = 0;
 
 /* Globals ------------------------------------------------------------------*/
 
-
-//--- FUNCIONES DEL MODULO ---//
+//--- Module Functions Declarations ----------
 void TimingDelay_Decrement(void);
 
+
+//--- Module Function Definitions ----------
 
 int main (void)
 {
     unsigned char i = 0;
     unsigned long ii = 0;
 
-#ifdef MAGNETO_NORMAL
-    char buff [64];
-    treatment_t main_state = TREATMENT_STANDBY;
-#endif
-
-#ifdef GATEWAY_TO_POWER_BOARDS
-    unsigned short bytes_readed = 0;
-    char s_to_senda [100];
-    char s_to_sendb [100];
-#endif
-
-// 	unsigned char counter_keep_alive = 0;
-// 	//Configuracion de clock.
-    // RCC_Config ();
-
     //Configuracion systick    
     if (SysTick_Config(72000))
     {
         while (1)	/* Capture error */
         {
-            if (LED1)
-                LED1_OFF;
+            if (LED)
+                LED_OFF;
             else
-                LED1_ON;
+                LED_ON;
 
             for (i = 0; i < 255; i++)
             {
@@ -98,32 +84,18 @@ int main (void)
             }
         }
     }
-        
 
-// 	//Configuracion led. & Enabled Channels
+    // Configuracion led. & Enabled Channels
     GpioInit();
 
-#ifdef STM32F10X_HD    
-    //enciendo TIM7
-    TIM7_Init();
-#endif
-
-    //enciendo usart1 para raspberry
+    //enciendo usart1
     Usart1Config();
 
-    //enciendo usart2 para comunicacion con micros
-    Usart2Config();
+    // //enciendo usart2 para comunicacion con micros
+    // Usart2Config();
     
 
     //-- Welcome Messages --------------------
-#ifdef GATEWAY_TO_POWER_BOARDS
-    Usart1Send("\nGateway to power side TEST!!!\n");
-    Wait_ms(100);
-#endif    
-#ifdef MAGNETO_NORMAL
-    Usart1Send("\nGausstek Stretcher Board -- powered by: Kirno Technology\n");
-    Wait_ms(100);
-#endif
 #ifdef HARD
     Usart1Send(HARD);
     Wait_ms(100);    
@@ -137,7 +109,20 @@ int main (void)
 #else
 #error	"No Soft Version defined in hard.h file"
 #endif
+#ifdef FEATURES
+    Usart1Send((const char *) FEATURES);
+    Wait_ms(100);
+#endif
 
+    while (1)
+    {
+        LED_ON;
+        Wait_ms(1000);
+        LED_OFF;
+        Wait_ms(1000);
+    }
+
+    
     //---- Prueba Usart3 ----------
     // while (1)
     // {

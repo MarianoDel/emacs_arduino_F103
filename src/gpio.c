@@ -134,9 +134,11 @@ void GpioInit (void)
     GPIOC->CRL = temp;
 
     //--- GPIOC High Side -------------------//    
-    temp = GPIOC->CRH;    //PC8-PC9 Input; PC10-PC11 Alternative (Uart4); PC12 Alterantive (Uart5)
-    temp &= 0xFFF00000;
-    temp |= 0x000A8A88;
+    temp = GPIOC->CRH;    
+    // temp &= 0xFFF00000;    //PC8-PC9 Input; PC10-PC11 Alternative (Uart4); PC12 Alterantive (Uart5)
+    // temp |= 0x000A8A88;
+    temp &= 0xFF0FFFFF;    //PC13 output
+    temp |= 0x00200000;
     GPIOC->CRH = temp;
 
     //--- GPIOD Low Side -------------------//
@@ -148,3 +150,5 @@ void GpioInit (void)
     
 
 }
+
+//--- end of file ---//
