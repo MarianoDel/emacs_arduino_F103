@@ -100,33 +100,30 @@ enum bool
 };
 
 
-//--- Configuracion de leds ---//
+//--- Configuracion de Pines ---//
 #ifdef HARDWARE_VERSION_1_0
 
-//--- PC13 ---//
+//--- Port A ---//
+
+//PA5 input floating
+#define SENSE_MOSFET_A ((GPIOA->IDR & 0x0020) != 0)
+
+//PA6 Alternative TIM3_CH1
+
+//PA8 Alternative TIM1_CH1
+
+//PA9, PA10 Alternative Usart 1
+
+//--- Port B ---//
+#define SENSE_MOSFET_B ((GPIOB->IDR & 0x8000) != 0)
+
+//--- Port C ---//
+//PC13
 #define LED ((GPIOC->ODR & 0x2000) == 0)
 #define LED_OFF GPIOC->BSRR = 0x00002000
 #define LED_ON GPIOC->BSRR = 0x20000000
 
-//--- PC1 ---//
-
-//PA0, PA1 NC
-
-//PA2
-//PA3    Usart2
-
-//PA4, PA5, PA6, PA7  NC
-
-//PC4    Analog
-//PC5    Analog
-
-//PB0, PB1, PB2 NC
-
-//PB10
-//PB11    Usart3
-
-//PB12    NC
-
+//old declarations & macros
 //--- PB13 ---//
 #define OUT5 ((GPIOB->ODR & 0x2000) == 0)
 #define OUT5_OFF GPIOB->BSRR = 0x00002000

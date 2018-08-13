@@ -71,8 +71,17 @@ void TIM_1_Init (void);
 void TIM_3_Init (void);
 
 void UpdateTIMSync (unsigned short);
-void Update_TIM1_CH1 (unsigned short);
+void UpdateTIM_MosfetA (unsigned short);
+void UpdateTIM_MosfetB (unsigned short);
+void EnablePreload_MosfetA (void);
+void DisablePreload_MosfetA (void);
+void EnablePreload_MosfetB (void);
+void DisablePreload_MosfetB (void);
 
+void Update_TIM1_CH1 (unsigned short);
+void Update_TIM3_CH2 (unsigned short);
+void Update_TIM3_CH3 (unsigned short);
+void Update_TIM3_CH4 (unsigned short);
 
 #ifdef STM32F10X_HD
 void TIM6_Init(void);

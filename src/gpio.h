@@ -117,5 +117,7 @@
 
 //--- Exported Functions ------------------------------
 void GpioInit(void);
+void EXTIOn (void);
+void EXTIOff (void);
 
 #endif

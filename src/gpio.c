@@ -97,9 +97,9 @@ void GpioInit (void)
         RCC_GPIOD_CLKEN;
 
     //--- GPIOA Low Side ------------------//
-    temp = GPIOA->CRL;    //PA0 Input pull-up (Interrupt) PA2-PA3 Alternative (Usart2); PA6 Alternative (TIM3_CH1)
-    temp &= 0xF0FF00F0;
-    temp |= 0x0A008A08;    
+    temp = GPIOA->CRL;    //PA0 Input pull-up (Interrupt) PA2-PA3 Alternative (Usart2); 
+    temp &= 0xF00F00F0;    //PA5 input floating; PA6 Alternative (TIM3_CH1)
+    temp |= 0x0A408A08;    
     GPIOA->CRL = temp;
 
     //--- GPIOA High Side ------------------//
@@ -121,9 +121,9 @@ void GpioInit (void)
     GPIOB->CRL = temp;
 
     //--- GPIOB High Side -------------------//
-    temp = GPIOB->CRH;    //PB10-PB11 Alternative (Usart3); PB13-PB15 output
-    temp &= 0x000F00FF;
-    temp |= 0x22208A00;
+    temp = GPIOB->CRH;    //PB10-PB11 Alternative (Usart3); PB15 input floating
+    temp &= 0x0FFF00FF;
+    temp |= 0x40008A00;
     GPIOB->CRH = temp;    
     
     //--- GPIOC Low Side -------------------//
@@ -167,5 +167,17 @@ void GpioInit (void)
 
 #endif
 }
+
+#ifdef USE_EXTERNAL_INTS
+inline void EXTIOff (void)
+{
+    EXTI->IMR &= ~0x00000001;
+}
+
+inline void EXTIOn (void)
+{
+    EXTI->IMR |= 0x00000001;
+}
+#endif
 
 //--- end of file ---//

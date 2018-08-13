@@ -118,12 +118,15 @@ int main (void)
     TIM_3_Init();
 
     UpdateTIMSync(DUTY_FOR_DMAX);
+    EXTIOn();    
     
     while (1)
     {
-        LED_ON;
+        // LED_ON;
+        // EXTIOn();
         Wait_ms(1000);
-        LED_OFF;
+        // LED_OFF;
+        // EXTIOff();
         Wait_ms(1000);
     }
 
@@ -227,30 +230,26 @@ void EXTI0_IRQHandler (void)
             LED_OFF;
         else
             LED_ON;
+
+        if (SENSE_MOSFET_A)
+        {
+            DisablePreload_MosfetA();
+            UpdateTIM_MosfetA(0);
+            EnablePreload_MosfetA();
+            UpdateTIM_MosfetA(DUTY_FOR_DMAX);            
+        }
+        else if (SENSE_MOSFET_B)
+        {
+            DisablePreload_MosfetB();
+            UpdateTIM_MosfetB(0);
+            EnablePreload_MosfetB();
+            UpdateTIM_MosfetB(DUTY_FOR_DMAX);
+        }
+        else
+        {
+            //llegue tarde
+        }
         
-        //reviso que mosfet generaba
-        // if (CTRL_M_A)
-        // {
-        //     DisablePreload_MosfetA();
-        //     UpdateTIM_MosfetA(0);
-        //     EnablePreload_MosfetA();
-        //     UpdateTIM_MosfetA(DUTY_FOR_DMAX);
-        // }
-        // else if (CTRL_M_B)
-        // {
-        //     DisablePreload_MosfetB();
-        //     UpdateTIM_MosfetB(0);
-        //     EnablePreload_MosfetB();
-        //     UpdateTIM_MosfetB(DUTY_FOR_DMAX);            
-        // }
-        // else
-        // {
-        //     //llegue muy tarde con la INT
-        // }
-
-        // current_excess = 1;
-
-
         EXTI->PR |= 0x00000001;
     }
 }
