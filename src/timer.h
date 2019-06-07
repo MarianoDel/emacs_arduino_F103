@@ -66,8 +66,10 @@
 #endif
 
 #define PIN_LEFT_ON    Update_TIM1_CH1(DUTY_ALWAYS)
-#define PIN_LEFT_OFF    Update_TIM1_CH1(DUTY_NONE)    
+#define PIN_LEFT_OFF    Update_TIM1_CH1(DUTY_NONE)
+#define PIN_LEFT_50    Update_TIM1_CH1(DUTY_50_PERCENT)    
 #define PIN_RIGHT_ON    Update_TIM1_CH2(DUTY_ALWAYS)
+#define PIN_RIGHT_50    Update_TIM1_CH2(DUTY_50_PERCENT)
 #define PIN_RIGHT_OFF    Update_TIM1_CH2(DUTY_NONE)
 
 //--- Exported Functions ------------------------------

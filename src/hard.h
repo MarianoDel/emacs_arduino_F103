@@ -24,8 +24,8 @@
 #define SOFTWARE_VERSION_1_0        //habla contra rpi con programa magneto y traduce a micros potencia
 
 //-------- Type of Program (depending on software version) ----------------
-#define INVERTER_SQUARE_MODE
-// #define INVERTER_QUASI_SINE_WAVE
+// #define INVERTER_SQUARE_MODE
+#define INVERTER_QUASI_SINE_WAVE
 
 
 
@@ -100,14 +100,30 @@ enum bool
 	TRUE = !FALSE
 };
 
-#ifdef INVERTER_SQUARE_MODE
-#define T_ON    9800
-#define T_DEAD_TIME    200
 
+#define TT_ON    9800
+#define TT_DEAD_TIME    200
+#define TT_THIRD    3266
+
+#ifdef INVERTER_SQUARE_MODE
 typedef enum {
     ON_LEFT = 0,
     WAIT_DEAD_TIME_LEFT,
     ON_RIGHT,
+    WAIT_DEAD_TIME_RIGHT
+
+} pin_state_t;
+#endif
+
+#ifdef INVERTER_QUASI_SINE_WAVE
+typedef enum {
+    ON_LEFT_RISING = 0,
+    ON_LEFT_FULL,
+    ON_LEFT_FALLING,
+    WAIT_DEAD_TIME_LEFT,
+    ON_RIGHT_RISING,
+    ON_RIGHT_FULL,
+    ON_RIGHT_FALLING,    
     WAIT_DEAD_TIME_RIGHT
 
 } pin_state_t;

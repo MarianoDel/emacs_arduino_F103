@@ -66,7 +66,13 @@ int main (void)
 {
     unsigned char i = 0;
     unsigned long ii = 0;
+#ifdef INVERTER_SQUARE_MODE    
     pin_state_t pin_state = ON_LEFT;
+#endif
+
+#ifdef INVERTER_QUASI_SINE_WAVE
+    pin_state_t pin_state = ON_LEFT_RISING;
+#endif
 
     //Configuracion systick    
     if (SysTick_Config(72000))
@@ -126,7 +132,7 @@ int main (void)
         switch (pin_state)
         {
         case ON_LEFT:
-            if (TIM4->CNT > T_ON)
+            if (TIM4->CNT > TT_ON)
             {
                 TIM4->CNT = 0;
                 PIN_LEFT_OFF;
@@ -135,7 +141,7 @@ int main (void)
             break;
 
         case WAIT_DEAD_TIME_LEFT:
-            if (TIM4->CNT > T_DEAD_TIME)
+            if (TIM4->CNT > TT_DEAD_TIME)
             {                
                 TIM4->CNT = 0;
                 PIN_RIGHT_ON;
@@ -144,7 +150,7 @@ int main (void)
             break;
 
         case ON_RIGHT:
-            if (TIM4->CNT > T_ON)
+            if (TIM4->CNT > TT_ON)
             {
                 TIM4->CNT = 0;
                 PIN_RIGHT_OFF;
@@ -153,7 +159,7 @@ int main (void)
             break;
 
         case WAIT_DEAD_TIME_RIGHT:
-            if (TIM4->CNT > T_DEAD_TIME)
+            if (TIM4->CNT > TT_DEAD_TIME)
             {                
                 TIM4->CNT = 0;
                 PIN_LEFT_ON;
@@ -179,13 +185,22 @@ int main (void)
             if (TIM4->CNT > TT_THIRD)
             {
                 TIM4->CNT = 0;
-                PIN_LEFT_OFF;
-                pin_state = WAIT_DEAD_TIME_LEFT;
+                PIN_LEFT_ON;
+                pin_state = ON_LEFT_FULL;
             }
             break;
 
         case ON_LEFT_FULL:
-            if (TIM4->CNT > T_ON)
+            if (TIM4->CNT > TT_THIRD)
+            {
+                TIM4->CNT = 0;
+                PIN_LEFT_50;
+                pin_state = ON_LEFT_FALLING;
+            }
+            break;
+            
+        case ON_LEFT_FALLING:
+            if (TIM4->CNT > TT_THIRD)
             {
                 TIM4->CNT = 0;
                 PIN_LEFT_OFF;
@@ -194,36 +209,54 @@ int main (void)
             break;
             
         case WAIT_DEAD_TIME_LEFT:
-            if (TIM4->CNT > T_DEAD_TIME)
+            if (TIM4->CNT > TT_DEAD_TIME)
             {                
                 TIM4->CNT = 0;
-                PIN_RIGHT_ON;
-                pin_state = ON_RIGHT;
+                PIN_RIGHT_50;
+                pin_state = ON_RIGHT_RISING;
             }
             break;
 
-        case ON_RIGHT:
-            if (TIM4->CNT > T_ON)
+        case ON_RIGHT_RISING:
+            if (TIM4->CNT > TT_THIRD)
+            {
+                TIM4->CNT = 0;
+                PIN_RIGHT_ON;
+                pin_state = ON_RIGHT_FULL;
+            }
+            break;
+
+        case ON_RIGHT_FULL:
+            if (TIM4->CNT > TT_THIRD)
+            {
+                TIM4->CNT = 0;
+                PIN_RIGHT_50;
+                pin_state = ON_RIGHT_FALLING;
+            }
+            break;
+
+        case ON_RIGHT_FALLING:
+            if (TIM4->CNT > TT_THIRD)
             {
                 TIM4->CNT = 0;
                 PIN_RIGHT_OFF;
                 pin_state = WAIT_DEAD_TIME_RIGHT;
             }
             break;
-
+            
         case WAIT_DEAD_TIME_RIGHT:
-            if (TIM4->CNT > T_DEAD_TIME)
+            if (TIM4->CNT > TT_DEAD_TIME)
             {                
                 TIM4->CNT = 0;
-                PIN_LEFT_ON;
-                pin_state = ON_LEFT;
+                PIN_LEFT_50;
+                pin_state = ON_LEFT_RISING;
             }
             break;
 
         default:
             TIM4->CNT = 0;
-            PIN_LEFT_ON;
-            pin_state = ON_LEFT;
+            PIN_LEFT_50;
+            pin_state = ON_LEFT_RISING;
             break;
         }
     }
