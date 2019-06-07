@@ -25,7 +25,8 @@
 
 //-------- Type of Program (depending on software version) ----------------
 // #define INVERTER_SQUARE_MODE
-#define INVERTER_QUASI_SINE_WAVE
+// #define INVERTER_QUASI_SINE_WAVE
+#define INVERTER_PURE_SINUSOIDAL
 
 // #define USE_FREQ_18KHZ
 // #define USE_FREQ_9KHZ
@@ -106,8 +107,9 @@ enum bool
 #define TT_ON    9800
 #define TT_DEAD_TIME    200
 #define TT_THIRD    3266
+#define TT_SINE_POINT    200
 
-#ifdef INVERTER_SQUARE_MODE
+#if (defined INVERTER_SQUARE_MODE) || (defined INVERTER_PURE_SINUSOIDAL)
 typedef enum {
     ON_LEFT = 0,
     WAIT_DEAD_TIME_LEFT,

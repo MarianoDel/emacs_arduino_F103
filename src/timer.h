@@ -72,6 +72,9 @@
 #define PIN_RIGHT_50    Update_TIM1_CH2(DUTY_50_PERCENT)
 #define PIN_RIGHT_OFF    Update_TIM1_CH2(DUTY_NONE)
 
+#define PIN_LEFT_PWM(X)    Update_TIM1_CH1(X)
+#define PIN_RIGHT_PWM(X)    Update_TIM1_CH2(X)
+
 //--- Exported Functions ------------------------------
 void Wait_ms (unsigned short);
 

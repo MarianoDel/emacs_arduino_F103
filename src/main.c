@@ -54,8 +54,16 @@ volatile unsigned short comms_timeout = 0;
 
 
 /* Globals ------------------------------------------------------------------*/
+#define SIZEOF_SIGNAL    50
 
-    
+unsigned short mem_signal [SIZEOF_SIGNAL] = {62,125,187,248,309,368,425,481,535,587,
+                                             637,684,728,770,809,844,876,904,929,951,
+                                             968,982,992,998,1000,998,992,982,968,951,
+                                             929,904,876,844,809,770,728,684,637,587,
+                                             535,481,425,368,309,248,187,125,62,0};
+
+unsigned short * p_signal;
+
 //--- Module Functions Declarations ----------
 void TimingDelay_Decrement(void);
 extern void EXTI0_IRQHandler (void);
@@ -66,7 +74,7 @@ int main (void)
 {
     unsigned char i = 0;
     unsigned long ii = 0;
-#ifdef INVERTER_SQUARE_MODE    
+#if (defined INVERTER_SQUARE_MODE) || (defined INVERTER_PURE_SINUSOIDAL)
     pin_state_t pin_state = ON_LEFT;
 #endif
 
@@ -264,7 +272,82 @@ int main (void)
         }
     }
 #endif    //INVERTER_QUASI_SINE_WAVE
-        
+
+#ifdef INVERTER_PURE_SINUSOIDAL
+    p_signal = mem_signal;
+    
+    PIN_LEFT_OFF;
+    PIN_RIGHT_OFF;    
+    while (1)
+    {
+        switch (pin_state)
+        {
+        case ON_LEFT:
+            if (TIM4->CNT >= TT_SINE_POINT)
+            {
+                TIM4->CNT = 0;
+
+                if (p_signal < &mem_signal[(SIZEOF_SIGNAL - 1)])
+                {                    
+                    p_signal++;
+                    PIN_LEFT_PWM(*p_signal);
+                }
+                else
+                {
+                    //termine senial
+                    PIN_LEFT_PWM(DUTY_NONE);
+                    pin_state = WAIT_DEAD_TIME_LEFT;
+                }
+            }
+            break;
+            
+        case WAIT_DEAD_TIME_LEFT:
+            if (TIM4->CNT > TT_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                pin_state = ON_RIGHT;
+                p_signal = mem_signal;
+            }
+            break;
+
+        case ON_RIGHT:
+            if (TIM4->CNT >= TT_SINE_POINT)
+            {
+                TIM4->CNT = 0;
+
+                if (p_signal < &mem_signal[(SIZEOF_SIGNAL - 1)])
+                {                    
+                    p_signal++;
+                    PIN_RIGHT_PWM(*p_signal);
+                }
+                else
+                {
+                    //termine senial
+                    PIN_RIGHT_PWM(DUTY_NONE);
+                    pin_state = WAIT_DEAD_TIME_RIGHT;
+                }
+            }
+            break;
+            
+        case WAIT_DEAD_TIME_RIGHT:
+            if (TIM4->CNT > TT_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                pin_state = ON_LEFT;
+                p_signal = mem_signal;
+            }
+            break;
+
+        default:
+            TIM4->CNT = 0;
+            PIN_LEFT_OFF;
+            PIN_RIGHT_OFF;
+            pin_state = ON_LEFT;
+            break;
+        }
+    }
+#endif    //INVERTER_PURE_SINUSOIDAL
+    
 }
 
 //--- End of Main ---//
