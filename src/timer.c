@@ -78,6 +78,11 @@ void Update_TIM1_CH1 (unsigned short a)
     TIM1->CCR1 = a;
 }
 
+void Update_TIM1_CH2 (unsigned short a)
+{
+    TIM1->CCR2 = a;
+}
+
 void Update_TIM3_CH1 (unsigned short a)
 {
     TIM3->CCR1 = a;
@@ -116,11 +121,9 @@ void TIM_1_Init (void)
     //TIM1->SMCR |= TIM_SMCR_MSM | TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1 | TIM_SMCR_TS_1;    //link timer3
     TIM1->SMCR = 0x0000;
 
-#ifdef TIM1_AND_TIM3
-    TIM1->CCMR1 = 0x0060;            //CH1 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)    
-    TIM1->CCMR2 = 0x0060;            //CH3 output PWM mode 1
-    TIM1->CCER |= TIM_CCER_CC1E | TIM_CCER_CC3E | TIM_CCER_CC3P;
-#endif
+    TIM1->CCMR1 = 0x6060;            //CH1 CH2 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)    
+    TIM1->CCMR2 = 0x0000;
+    TIM1->CCER |= TIM_CCER_CC1NE | TIM_CCER_CC2NE;
         
     TIM1->BDTR |= TIM_BDTR_MOE;
     TIM1->ARR = DUTY_100_PERCENT;    //cada tick 20.83ns
@@ -177,6 +180,31 @@ void TIM3_IRQHandler (void)	//1 ms
     if (TIM3->SR & 0x01)	//bajo el flag
         TIM3->SR = 0x00;
 }
+
+
+void TIM_4_Init(void)
+{
+//    Counter Register (TIMx_CNT)
+//    Prescaler Register (TIMx_PSC)
+//    Auto-Reload Register (TIMx_ARR)
+//    The counter clock frequency CK_CNT is equal to fCK_PSC / (PSC[15:0] + 1)
+//
+//    Quiero una interrupcion por ms CK_INT es 72MHz
+
+    //---- Clk ----//
+    if (!RCC_TIM4_CLK)
+        RCC_TIM4_CLKEN;
+
+    //--- Config ----//
+    TIM4->ARR = 0xFFFF;
+    TIM4->CNT = 0;
+    TIM4->PSC = 71;
+    TIM4->EGR = TIM_EGR_UG; //update registers
+
+    // Enable timer ver UDIS
+    TIM4->CR1 |= TIM_CR1_CEN;
+}
+
 
 #ifdef STM32F10X_HD
 void TIM7_IRQHandler (void)	//1mS

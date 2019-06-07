@@ -24,8 +24,9 @@
 #define SOFTWARE_VERSION_1_0        //habla contra rpi con programa magneto y traduce a micros potencia
 
 //-------- Type of Program (depending on software version) ----------------
-// #define HARDWARE_TESTS
-#define TIM1_AND_TIM3
+#define INVERTER_SQUARE_MODE
+// #define INVERTER_QUASI_SINE_WAVE
+
 
 
 //-------- Type of Program and Features ----------------
@@ -99,6 +100,20 @@ enum bool
 	TRUE = !FALSE
 };
 
+#ifdef INVERTER_SQUARE_MODE
+#define T_ON    9800
+#define T_DEAD_TIME    200
+
+typedef enum {
+    ON_LEFT = 0,
+    WAIT_DEAD_TIME_LEFT,
+    ON_RIGHT,
+    WAIT_DEAD_TIME_RIGHT
+
+} pin_state_t;
+#endif
+
+
 
 //--- Configuracion de Pines ---//
 #ifdef HARDWARE_VERSION_1_0
@@ -125,14 +140,10 @@ enum bool
 
 //old declarations & macros
 //--- PB13 ---//
-#define OUT5 ((GPIOB->ODR & 0x2000) == 0)
-#define OUT5_OFF GPIOB->BSRR = 0x00002000
-#define OUT5_ON GPIOB->BSRR = 0x20000000
+//Alternative TIM1_CH1N
 
 //--- PB14 ---//
-#define OUT4 ((GPIOB->ODR & 0x4000) == 0)
-#define OUT4_OFF GPIOB->BSRR = 0x00004000
-#define OUT4_ON GPIOB->BSRR = 0x40000000
+//Alternative TIM1_CH2N
 
 //--- PB15 ---//
 #define OUT1 ((GPIOB->ODR & 0x8000) == 0)

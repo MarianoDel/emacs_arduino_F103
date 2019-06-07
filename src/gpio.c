@@ -121,9 +121,9 @@ void GpioInit (void)
     GPIOB->CRL = temp;
 
     //--- GPIOB High Side -------------------//
-    temp = GPIOB->CRH;    //PB10-PB11 Alternative (Usart3); PB15 input floating
-    temp &= 0x0FFF00FF;
-    temp |= 0x40008A00;
+    temp = GPIOB->CRH;    //PB10-PB11 Alternative (Usart3); PB13 - PB14 Alternative (TIM1)
+    temp &= 0x000F00FF;
+    temp |= 0x4AA08A00;
     GPIOB->CRH = temp;    
     
     //--- GPIOC Low Side -------------------//

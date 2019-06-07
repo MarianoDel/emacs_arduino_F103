@@ -27,7 +27,6 @@ BIN  = $(CP) -O binary -S
 MCU  = cortex-m3
 
 # List all default C defines here, like -D_DEBUG=1
-#DDEFS = -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER -DUSE_STM3210E_EVAL
 #para el micro STM32F103RC
 # DDEFS = -DSTM32F10X_HD
 #para el micro STM32F103C8
@@ -67,7 +66,7 @@ UDEFS =
 UADEFS =
 
 
-# Sources Files
+## Sources Files
 SRC  = ./src/main.c
 SRC += ./src/gpio.c
 SRC += ./src/it.c
@@ -88,9 +87,8 @@ ASRC = ./startup_src/startup_stm32f10x_hd.s
 # List all include directories here
 UINCDIR = $(STARTUPDIR) \
           $(CORELIBDIR) \
-          $(STMSPINCDDIR) \
-          $(DISCOVERY)    \
           ./inc
+
 # List the user directory to look for the libraries here
 ULIBDIR =
 

@@ -12,7 +12,7 @@
 #define __GPIO_H_
 
 //-- Configurations
-#define USE_EXTERNAL_INTS
+// #define USE_EXTERNAL_INTS
 
 //-- Exported Macros --------------------
 

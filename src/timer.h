@@ -17,6 +17,9 @@
 #define DUTY_100_PERCENT        1000
 #define DUTY_FOR_DMAX           450
 
+#define DUTY_ALWAYS    (DUTY_100_PERCENT + 1)
+#define DUTY_NONE    0
+
 //-- Exported Hardware Macros ---------------------
 #define ENABLE_TIM1			TIM1->CR1 |= TIM_CR1_CEN;
 #define DISABLE_TIM1			TIM1->CR1 &= ~TIM_CR1_CEN;
@@ -62,6 +65,10 @@
 #define RCC_TIM7_CLKDIS         RCC->APB1ENR &= ~0x00000020;
 #endif
 
+#define PIN_LEFT_ON    Update_TIM1_CH1(DUTY_ALWAYS)
+#define PIN_LEFT_OFF    Update_TIM1_CH1(DUTY_NONE)    
+#define PIN_RIGHT_ON    Update_TIM1_CH2(DUTY_ALWAYS)
+#define PIN_RIGHT_OFF    Update_TIM1_CH2(DUTY_NONE)
 
 //--- Exported Functions ------------------------------
 void Wait_ms (unsigned short);
@@ -79,9 +86,13 @@ void EnablePreload_MosfetB (void);
 void DisablePreload_MosfetB (void);
 
 void Update_TIM1_CH1 (unsigned short);
+void Update_TIM1_CH2 (unsigned short);
+
 void Update_TIM3_CH2 (unsigned short);
 void Update_TIM3_CH3 (unsigned short);
 void Update_TIM3_CH4 (unsigned short);
+
+void TIM_4_Init (void);
 
 #ifdef STM32F10X_HD
 void TIM6_Init(void);

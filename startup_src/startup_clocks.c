@@ -28,8 +28,10 @@
 #error	"No Oscillator Source Defined"
 #endif
 
+#ifndef HSE_CRYSTAL_OSC
 #if (!defined SYSCLK_FREQ_72MHz) && (!defined SYSCLK_FREQ_8MHz)
-#error	"No Oscillator Frequency Defined"
+#error	"No Oscillator Frequency Defined for RC"
+#endif
 #endif
 
 #ifdef HSE_CRYSTAL_OSC

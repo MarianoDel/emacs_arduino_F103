@@ -9,8 +9,8 @@
 // #### STARTUP_CLOCKS.H ############################################
 //---------------------------------------------------------
 
-#ifndef STARTUP_CLOCKS_H_
-#define STARTUP_CLOCKS_H_
+#ifndef _STARTUP_CLOCKS_H_
+#define _STARTUP_CLOCKS_H_
 
 #include "hard.h"        //for config pourpose
 
@@ -29,4 +29,6 @@
 void SystemInit (void);
 
 
-#endif
+#endif    /* _STARTUP_CLOCKS_H_ */
+
+//--- end of file ---//

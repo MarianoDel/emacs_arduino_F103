@@ -55,6 +55,7 @@ volatile unsigned short comms_timeout = 0;
 
 /* Globals ------------------------------------------------------------------*/
 
+    
 //--- Module Functions Declarations ----------
 void TimingDelay_Decrement(void);
 extern void EXTI0_IRQHandler (void);
@@ -65,6 +66,7 @@ int main (void)
 {
     unsigned char i = 0;
     unsigned long ii = 0;
+    pin_state_t pin_state = ON_LEFT;
 
     //Configuracion systick    
     if (SysTick_Config(72000))
@@ -115,86 +117,118 @@ int main (void)
 #endif
 
     TIM_1_Init();
-    TIM_3_Init();
+    TIM_4_Init();
 
-    UpdateTIMSync(DUTY_FOR_DMAX);
-    EXTIOn();    
     
+#ifdef INVERTER_SQUARE_MODE
     while (1)
     {
-        // LED_ON;
-        // EXTIOn();
-        Wait_ms(1000);
-        // LED_OFF;
-        // EXTIOff();
-        Wait_ms(1000);
+        switch (pin_state)
+        {
+        case ON_LEFT:
+            if (TIM4->CNT > T_ON)
+            {
+                TIM4->CNT = 0;
+                PIN_LEFT_OFF;
+                pin_state = WAIT_DEAD_TIME_LEFT;
+            }
+            break;
+
+        case WAIT_DEAD_TIME_LEFT:
+            if (TIM4->CNT > T_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                PIN_RIGHT_ON;
+                pin_state = ON_RIGHT;
+            }
+            break;
+
+        case ON_RIGHT:
+            if (TIM4->CNT > T_ON)
+            {
+                TIM4->CNT = 0;
+                PIN_RIGHT_OFF;
+                pin_state = WAIT_DEAD_TIME_RIGHT;
+            }
+            break;
+
+        case WAIT_DEAD_TIME_RIGHT:
+            if (TIM4->CNT > T_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                PIN_LEFT_ON;
+                pin_state = ON_LEFT;
+            }
+            break;
+
+        default:
+            TIM4->CNT = 0;
+            PIN_LEFT_ON;
+            pin_state = ON_LEFT;
+            break;
+        }
     }
+#endif    //INVERTER_SQUARE_MODE
 
-    
-    //---- Prueba Usart3 ----------
-    // while (1)
-    // {
-    //     // Wait_ms(2000);
-    //     L_ALARMA_OFF;
-    //     Usart3Send("HOLA!!!\n");
-    //     Wait_ms(100);
+#ifdef INVERTER_QUASI_SINE_WAVE
+    while (1)
+    {
+        switch (pin_state)
+        {
+        case ON_LEFT_RISING:
+            if (TIM4->CNT > TT_THIRD)
+            {
+                TIM4->CNT = 0;
+                PIN_LEFT_OFF;
+                pin_state = WAIT_DEAD_TIME_LEFT;
+            }
+            break;
 
-    //     if (usart3_have_data)
-    //     {
-    //         usart3_have_data = 0;
-    //         L_ALARMA_ON;
-    //         ReadUsart3Buffer(local_buff, 64);
-    //         if (strcmp((const char *) "HOLA!!!", local_buff) == 0)
-    //             L_ZONA_ON;
-    //         else
-    //             L_ZONA_OFF;
+        case ON_LEFT_FULL:
+            if (TIM4->CNT > T_ON)
+            {
+                TIM4->CNT = 0;
+                PIN_LEFT_OFF;
+                pin_state = WAIT_DEAD_TIME_LEFT;
+            }
+            break;
+            
+        case WAIT_DEAD_TIME_LEFT:
+            if (TIM4->CNT > T_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                PIN_RIGHT_ON;
+                pin_state = ON_RIGHT;
+            }
+            break;
 
-    //         Wait_ms(100);
-    //         L_ALARMA_OFF;
-    //         L_ZONA_OFF;
-    //         Wait_ms(1900);
-    //     }
-    // }
-    //---- Fin Prueba Usart3 ----------
+        case ON_RIGHT:
+            if (TIM4->CNT > T_ON)
+            {
+                TIM4->CNT = 0;
+                PIN_RIGHT_OFF;
+                pin_state = WAIT_DEAD_TIME_RIGHT;
+            }
+            break;
 
-    //---- Prueba contra PC o Raspberry ----------
-    // while (1)
-    // {
-    //     UpdateRaspberryMessages();
-    // }
-    //---- Fin Prueba contra PC o Raspberry ----------    
+        case WAIT_DEAD_TIME_RIGHT:
+            if (TIM4->CNT > T_DEAD_TIME)
+            {                
+                TIM4->CNT = 0;
+                PIN_LEFT_ON;
+                pin_state = ON_LEFT;
+            }
+            break;
 
-
-    //---- Prueba Usart3 loop en terminal ----------
-    // while (1)
-    // {
-    //     if (usart3_have_data)
-    //     {
-    //         usart3_have_data = 0;
-    //         L_ALARMA_ON;
-    //         ReadUsart3Buffer(local_buff, 64);
-    //         Wait_ms(1000);
-    //         i = strlen(local_buff);
-    //         if (i < 62)
-    //         {
-    //             local_buff[i] = '\n';
-    //             local_buff[i+1] = '\0';
-    //             Usart3Send(local_buff);
-    //         }
-    //         L_ALARMA_OFF;
-    //     }
-    // }
-    //---- Fin Prueba Usart3 loop en terminal ----------
-
-    //---- Prueba Usart3 envia caracter solo 'd' ----------
-    // while (1)
-    // {
-    //     unsigned char snd = 'd';
-    //     Usart3SendUnsigned(&snd, 1);
-    //     // USART3->DR = 'd';
-    //     Wait_ms(100);
-    // }
-    //---- Fin Prueba Usart3 envia caracter solo 'd' ----------
+        default:
+            TIM4->CNT = 0;
+            PIN_LEFT_ON;
+            pin_state = ON_LEFT;
+            break;
+        }
+    }
+#endif    //INVERTER_QUASI_SINE_WAVE
+        
 }
 
 //--- End of Main ---//
