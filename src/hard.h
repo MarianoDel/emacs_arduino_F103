@@ -27,7 +27,9 @@
 // #define INVERTER_SQUARE_MODE
 #define INVERTER_QUASI_SINE_WAVE
 
-
+// #define USE_FREQ_18KHZ
+// #define USE_FREQ_9KHZ
+#define USE_FREQ_4_5KHZ
 
 //-------- Type of Program and Features ----------------
 

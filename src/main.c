@@ -124,9 +124,10 @@ int main (void)
 
     TIM_1_Init();
     TIM_4_Init();
-
     
 #ifdef INVERTER_SQUARE_MODE
+    PIN_LEFT_OFF;
+    PIN_RIGHT_OFF;
     while (1)
     {
         switch (pin_state)
@@ -177,6 +178,8 @@ int main (void)
 #endif    //INVERTER_SQUARE_MODE
 
 #ifdef INVERTER_QUASI_SINE_WAVE
+    PIN_LEFT_OFF;
+    PIN_RIGHT_OFF;    
     while (1)
     {
         switch (pin_state)
