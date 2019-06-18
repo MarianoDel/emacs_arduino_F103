@@ -123,9 +123,11 @@ void TIM_1_Init (void)
     TIM1->SMCR = 0x0000;
 
     TIM1->CCMR1 = 0x6060;            //CH1 CH2 output PWM mode 1 (channel active TIM1->CNT < TIM1->CCR1)
+#ifdef USE_CHANNELS_WITH_PRELOAD
     TIM1->CCMR1 |= TIM_CCMR1_OC1PE | TIM_CCMR1_OC2PE;
+#endif
     TIM1->CCMR2 = 0x0000;
-    TIM1->CCER |= TIM_CCER_CC1NE | TIM_CCER_CC2NE;
+    TIM1->CCER |= TIM_CCER_CC1NE | TIM_CCER_CC1NP | TIM_CCER_CC2NE | TIM_CCER_CC2NP;
         
     TIM1->BDTR |= TIM_BDTR_MOE;
     TIM1->ARR = DUTY_100_PERCENT;    //cada tick 20.83ns con PSC = 0

@@ -24,14 +24,17 @@
 #define SOFTWARE_VERSION_1_0        //habla contra rpi con programa magneto y traduce a micros potencia
 
 //-------- Type of Program (depending on software version) ----------------
-// #define INVERTER_SQUARE_MODE
+#define INVERTER_SQUARE_MODE
 // #define INVERTER_QUASI_SINE_WAVE
-#define INVERTER_PURE_SINUSOIDAL
+// #define INVERTER_PURE_SINUSOIDAL
 
 // #define USE_FREQ_18KHZ
 // #define USE_FREQ_9KHZ
 #define USE_FREQ_4_5KHZ
 
+#ifdef INVERTER_SQUARE_MODE
+// #define USE_CHANNELS_WITH_PRELOAD
+#endif
 //-------- Type of Program and Features ----------------
 
 //-------- Kind of Reports Sended ----------------
@@ -104,8 +107,8 @@ enum bool
 };
 
 
-#define TT_ON    9800
-#define TT_DEAD_TIME    200
+#define TT_ON    9000
+#define TT_DEAD_TIME    1000
 #define TT_THIRD    3266
 #define TT_SINE_POINT    200
 
@@ -114,7 +117,8 @@ typedef enum {
     ON_LEFT = 0,
     WAIT_DEAD_TIME_LEFT,
     ON_RIGHT,
-    WAIT_DEAD_TIME_RIGHT
+    WAIT_DEAD_TIME_RIGHT,
+    JUMPER_PROTECTED
 
 } pin_state_t;
 #endif
@@ -148,6 +152,9 @@ typedef enum {
 //PA8 Alternative TIM1_CH1
 
 //PA9, PA10 Alternative Usart 1
+
+//PA15 input pull-up
+#define JUMPER_PROT ((GPIOA->IDR & 0x8000) != 0)
 
 //--- Port B ---//
 #define SENSE_MOSFET_B ((GPIOB->IDR & 0x8000) != 0)

@@ -51,6 +51,7 @@ unsigned short buzzer_timeout = 0;
 //--- Externals de los timers
 volatile unsigned short wait_ms_var = 0;
 volatile unsigned short comms_timeout = 0;
+volatile unsigned short timer_standby = 0;
 
 
 /* Globals ------------------------------------------------------------------*/
@@ -138,6 +139,14 @@ int main (void)
     PIN_RIGHT_OFF;
     while (1)
     {
+        if (JUMPER_PROT)
+        {
+            PIN_LEFT_OFF;
+            PIN_RIGHT_OFF;
+            pin_state = JUMPER_PROTECTED;
+            timer_standby = 1000;
+        }
+        
         switch (pin_state)
         {
         case ON_LEFT:
@@ -176,6 +185,18 @@ int main (void)
             }
             break;
 
+        case JUMPER_PROTECTED:
+            if (!timer_standby)
+            {
+                if (!JUMPER_PROT)
+                {
+                    TIM4->CNT = 0;
+                    PIN_LEFT_ON;
+                    pin_state = ON_LEFT;
+                }
+            }
+            break;
+            
         default:
             TIM4->CNT = 0;
             PIN_LEFT_ON;
@@ -361,8 +382,8 @@ void TimingDelay_Decrement(void)
     if (comms_timeout)
         comms_timeout--;
     
-    // if (timer_standby)
-    //     timer_standby--;
+    if (timer_standby)
+        timer_standby--;
 
     // if (timer_filters)
     //     timer_filters--;
