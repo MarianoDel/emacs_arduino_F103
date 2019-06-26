@@ -24,13 +24,13 @@
 #define SOFTWARE_VERSION_1_0        //habla contra rpi con programa magneto y traduce a micros potencia
 
 //-------- Type of Program (depending on software version) ----------------
-#define INVERTER_SQUARE_MODE
+// #define INVERTER_SQUARE_MODE
 // #define INVERTER_QUASI_SINE_WAVE
-// #define INVERTER_PURE_SINUSOIDAL
+#define INVERTER_PURE_SINUSOIDAL
 
-// #define USE_FREQ_18KHZ
+#define USE_FREQ_18KHZ
 // #define USE_FREQ_9KHZ
-#define USE_FREQ_4_5KHZ
+// #define USE_FREQ_4_5KHZ
 
 #ifdef INVERTER_SQUARE_MODE
 // #define USE_CHANNELS_WITH_PRELOAD
@@ -132,7 +132,8 @@ typedef enum {
     ON_RIGHT_RISING,
     ON_RIGHT_FULL,
     ON_RIGHT_FALLING,    
-    WAIT_DEAD_TIME_RIGHT
+    WAIT_DEAD_TIME_RIGHT,
+    JUMPER_PROTECTED
 
 } pin_state_t;
 #endif

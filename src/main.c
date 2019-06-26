@@ -63,6 +63,7 @@ unsigned short mem_signal [SIZEOF_SIGNAL] = {62,125,187,248,309,368,425,481,535,
                                              929,904,876,844,809,770,728,684,637,587,
                                              535,481,425,368,309,248,187,125,62,0};
 
+
 unsigned short * p_signal;
 
 //--- Module Functions Declarations ----------
@@ -211,6 +212,14 @@ int main (void)
     PIN_RIGHT_OFF;    
     while (1)
     {
+        if (JUMPER_PROT)
+        {
+            PIN_LEFT_OFF;
+            PIN_RIGHT_OFF;
+            pin_state = JUMPER_PROTECTED;
+            timer_standby = 1000;
+        }
+
         switch (pin_state)
         {
         case ON_LEFT_RISING:
@@ -285,6 +294,18 @@ int main (void)
             }
             break;
 
+        case JUMPER_PROTECTED:
+            if (!timer_standby)
+            {
+                if (!JUMPER_PROT)
+                {
+                    TIM4->CNT = 0;
+                    PIN_LEFT_ON;
+                    pin_state = ON_LEFT_RISING;
+                }
+            }
+            break;
+            
         default:
             TIM4->CNT = 0;
             PIN_LEFT_50;
@@ -301,6 +322,14 @@ int main (void)
     PIN_RIGHT_OFF;    
     while (1)
     {
+        if (JUMPER_PROT)
+        {
+            PIN_LEFT_OFF;
+            PIN_RIGHT_OFF;
+            pin_state = JUMPER_PROTECTED;
+            timer_standby = 1000;
+        }
+        
         switch (pin_state)
         {
         case ON_LEFT:
@@ -359,6 +388,18 @@ int main (void)
             }
             break;
 
+        case JUMPER_PROTECTED:
+            if (!timer_standby)
+            {
+                if (!JUMPER_PROT)
+                {
+                    TIM4->CNT = 0;
+                    PIN_LEFT_ON;
+                    pin_state = ON_LEFT;
+                }
+            }
+            break;
+            
         default:
             TIM4->CNT = 0;
             PIN_LEFT_OFF;
